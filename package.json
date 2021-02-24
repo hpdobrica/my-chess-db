@@ -1,0 +1,27 @@
+{
+   "name": "chess-db",
+   "version": "1.0.0",
+   "description": "",
+   "main": "build/index.js",
+   "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "ts-node src/index.ts",
+      "build": "tsc"
+   },
+   "keywords": [],
+   "author": "Dobrica Savic",
+   "dependencies": {
+      "express": "^4.17.1",
+      "pg": "^8.5.1",
+      "reflect-metadata": "^0.1.13",
+      "runtypes": "^5.0.1",
+      "typeorm": "0.2.31"
+   },
+   "devDependencies": {
+      "@types/express": "^4.17.7",
+      "@types/node": "^14.6.0",
+      "nodemon": "^2.0.4",
+      "ts-node": "8.10.2",
+      "typescript": "3.9.7"
+   }
+}

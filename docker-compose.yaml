@@ -1,0 +1,18 @@
+version: '3'
+services:
+  chess-db-postgres:
+    container_name: chess-db-postgres
+    image: postgres:10.10
+    ports:
+      - '35432:5432'
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: db
+    volumes:
+      - '/tmp/chess_db_pg_data:/var/lib/postgresql'
+  chess-db-redis:
+    image: redis
+    container_name: chess-db-redis
+    ports:
+      - '6379:6379'
