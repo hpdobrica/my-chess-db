@@ -11,6 +11,7 @@
    "keywords": [],
    "author": "Dobrica Savic",
    "dependencies": {
+      "bcrypt": "^5.0.0",
       "express": "^4.17.1",
       "pg": "^8.5.1",
       "reflect-metadata": "^0.1.13",

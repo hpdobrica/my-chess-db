@@ -16,7 +16,11 @@ export function getHandlers() {
             res: express.Response
           ): Promise<void> {
             const users = await userService.getUsers()
-            res.json({users});
+            const usersWithoutPass = users.map((user) => {
+                delete user.password
+                return user;
+            });
+            res.json({users: usersWithoutPass});
           }
     }
 }

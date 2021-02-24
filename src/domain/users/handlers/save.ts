@@ -1,30 +1,34 @@
 import * as t from 'runtypes';
 import express from 'express';
 
-import service from '../service';
+import UserService from '../service';
+import PersonService from '../../persons/service';
 import { getConnection } from 'typeorm';
 import { User } from '../entity';
+import { Person } from '../../persons/entity';
 
-
-
-const Params = t.Partial({
-  firstName: t.String,
-  lastName: t.String,
-  age: t.Number
+const Params = t.Record({
+  username: t.String,
+  email: t.String,
+  password: t.String
 });
 
 
 export function saveHandlers() {
   console.log('getting connection!')
-  const userService = service(getConnection().getRepository(User));
+  const userService = UserService(getConnection().getRepository(User));
+  const personService = PersonService(getConnection().getRepository(Person));
 
   return {
-      saveUser: async function(
+      createUser: async function(
           req: express.Request,
           res: express.Response
         ): Promise<void> {
           const params = Params.check(req.body);
-          await userService.saveUser(params.firstName, params.lastName, params.age)
+          const user = await userService.createUser(params.username, params.email, params.password)
+
+          await personService.createPerson(user);
+
           res.json({status: 'success'});
         }
   }

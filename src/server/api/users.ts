@@ -6,7 +6,7 @@ import { handler } from '../handler';
 export function createRouter(): Router {
     const Users = express.Router();
     Users.get('/', handler(userHandlers.getHandlers().getUsers));
-    Users.post('/', handler(userHandlers.saveHandlers().saveUser));
+    Users.post('/', handler(userHandlers.saveHandlers().createUser));
 
     return Users;
 
