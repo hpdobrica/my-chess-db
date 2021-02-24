@@ -41,6 +41,8 @@ export class PersonPlatform {
   @ManyToOne(type => User, user => user.otbPersons)
   otbOwner: User
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   username: string;
 }
