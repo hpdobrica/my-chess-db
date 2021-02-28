@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToOne, PrimaryColumn, ManyToMany, JoinTable } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToOne, PrimaryColumn, ManyToMany, JoinTable, OneToMany } from "typeorm";
+import { Game } from "../games/entity";
 import { Platform } from "../platforms/entity";
 import { User } from "../users/entity";
 
@@ -24,6 +25,12 @@ export class Person {
     },
   })
   platforms: Platform[];
+
+  @OneToMany(type => Game, (game) => game.whitePlayer)
+  gamesAsWhite: Game[]
+
+  @OneToMany(type => Game, (game) => game.blackPlayer)
+  gamesAsBlack: Game[]
 
 }
 

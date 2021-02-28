@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToMany, OneToMany } from "typeorm";
+import { Game } from "../games/entity";
 import { Person } from "../persons/entity";
 import { User } from "../users/entity";
 
@@ -15,5 +16,8 @@ export class Platform {
 
   @ManyToMany(type => Person, person => person.platforms)
   persons: Person;
+
+  @OneToMany(type => Game, (game) => game.platform)
+  games: Game[]
 
 }
