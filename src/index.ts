@@ -24,7 +24,9 @@ createConnection()
   .then(async (connection) => {
     console.log('running migrations')
 
-    await connection.runMigrations();
+    await connection.runMigrations({
+      transaction: 'all'
+    });
 
     console.log('completed migrations')
 
