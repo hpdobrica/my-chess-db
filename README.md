@@ -14,6 +14,10 @@
 
 - `npm install`
 
+- `cp .env.example .env`
+
+- configure env variables in `.env` file
+
 - `docker-compose up -d` start database
 
 - `npm run start` serves on localhost:3000

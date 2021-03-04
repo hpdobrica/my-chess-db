@@ -23,7 +23,7 @@ const Body = t.Record({
 //   profileType: CHESS_COM
 // }
 
-export function saveHandlers() {
+export function postHandlers() {
   const personService = PersonService(getConnection().getRepository(Person), getConnection().getRepository(LichessProfile));
 
   return {

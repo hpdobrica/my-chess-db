@@ -14,7 +14,7 @@ const Params = t.Record({
 });
 
 
-export function saveHandlers() {
+export function postHandlers() {
   console.log('getting connection!')
   const userService = UserService(getConnection().getRepository(User), getConnection().getRepository(Person));
   // const personService = PersonService(getConnection().getRepository(Person));

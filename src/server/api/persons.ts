@@ -5,7 +5,7 @@ import { handler } from '../handler';
 
 export function createRouter(): Router {
     const Persons = express.Router();
-    Persons.post('/:personId/attachProfile', handler(personHandler.saveHandlers().attachProfile));
+    Persons.post('/:personId/attachProfile', handler(personHandler.postHandlers().attachProfile));
 
     return Persons;
 

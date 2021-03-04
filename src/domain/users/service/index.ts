@@ -1,4 +1,4 @@
-import {hash} from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import {User} from '../entity';
 
 import {Repository} from "typeorm";
@@ -11,7 +11,7 @@ export default function UserService(userRepo: Repository<User>, personRepo: Repo
         const user = new User();
         user.username = username;
         user.email = email;
-        user.password = await hash(password, 10);
+        user.password = await bcrypt.hash(password, 10);
 
         const person = new Person();
         await personRepo.save(person);
@@ -27,6 +27,12 @@ export default function UserService(userRepo: Repository<User>, personRepo: Repo
         const users = await userRepo.find({relations: ['person']})
 
         return users;
-    }
+    },
+
+    getByEmail: async (email: string):Promise<User> => {
+      const user = await userRepo.findOneOrFail({ email }, {relations: ['person']})
+
+      return user;
+  },
   };
 }
