@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { Person, PersonPlatform } from "../persons/entity";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from "typeorm";
+import { Person } from "../persons/entity";
+import { OtbProfile } from "../profiles/otb/entity";
 
 @Entity()
 export class User {
@@ -15,6 +16,11 @@ export class User {
   @Column()
   password: string;
 
-  @OneToMany(type => PersonPlatform, personPlatform => personPlatform.otbOwner)
-  otbPersons: PersonPlatform[]
+  @OneToMany(type => OtbProfile, otbProfile => otbProfile.owner)
+  otbProfiles: OtbProfile[]
+
+  @OneToOne(type => Person)
+  @JoinColumn()
+  person: Person
+
 }

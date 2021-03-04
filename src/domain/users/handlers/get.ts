@@ -1,14 +1,15 @@
 import * as t from 'runtypes';
 import express from 'express';
 
-import service from '../service';
+import UserService from '../service';
 import { getConnection } from 'typeorm';
 import { User } from '../entity';
+import { Person } from '../../persons/entity';
 
 
 export function getHandlers() {
     console.log('getting connection!')
-    const userService = service(getConnection().getRepository(User));
+    const userService = UserService(getConnection().getRepository(User), getConnection().getRepository(Person));
 
     return {
         getUsers: async function(
@@ -16,11 +17,11 @@ export function getHandlers() {
             res: express.Response
           ): Promise<void> {
             const users = await userService.getUsers()
-            const usersWithoutPass = users.map((user) => {
+            const usersResponse = users.map((user) => {
                 delete user.password
                 return user;
             });
-            res.json({users: usersWithoutPass});
+            res.json({users: usersResponse});
           }
     }
 }

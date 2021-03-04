@@ -5,7 +5,7 @@ import {Repository} from "typeorm";
 import { Person } from '../../persons/entity';
 
 
-export default function userService(userRepo: Repository<User>) {
+export default function UserService(userRepo: Repository<User>, personRepo: Repository<Person>) {
   return {
     createUser: async (username: string, email: string, password: string): Promise<User> => {
         const user = new User();
@@ -14,14 +14,17 @@ export default function userService(userRepo: Repository<User>) {
         user.password = await hash(password, 10);
 
         const person = new Person();
-        person.user = user;
+        await personRepo.save(person);
+
+
+        user.person = person;
         
         
         return userRepo.save(user);
     },
 
     getUsers: async ():Promise<User[]> => {
-        const users = await userRepo.find()
+        const users = await userRepo.find({relations: ['person']})
 
         return users;
     }

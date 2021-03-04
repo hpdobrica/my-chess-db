@@ -5,7 +5,7 @@ import UserService from '../service';
 import PersonService from '../../persons/service';
 import { getConnection } from 'typeorm';
 import { User } from '../entity';
-import { Person, PersonPlatform } from '../../persons/entity';
+import { Person} from '../../persons/entity';
 
 const Params = t.Record({
   username: t.String,
@@ -16,8 +16,8 @@ const Params = t.Record({
 
 export function saveHandlers() {
   console.log('getting connection!')
-  const userService = UserService(getConnection().getRepository(User));
-  const personService = PersonService(getConnection().getRepository(Person), getConnection().getRepository(PersonPlatform));
+  const userService = UserService(getConnection().getRepository(User), getConnection().getRepository(Person));
+  // const personService = PersonService(getConnection().getRepository(Person));
 
   return {
       createUser: async function(
@@ -25,9 +25,7 @@ export function saveHandlers() {
           res: express.Response
         ): Promise<void> {
           const params = Params.check(req.body);
-          const user = await userService.createUser(params.username, params.email, params.password)
-
-          await personService.createPerson(user);
+          await userService.createUser(params.username, params.email, params.password)
 
           res.json({status: 'success'});
         }

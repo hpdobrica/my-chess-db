@@ -1,12 +1,17 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from "typeorm";
-import { Person, PersonPlatform } from "../persons/entity";
-import { Platform } from "../platforms/entity";
+import { Person } from "../persons/entity";
 
 
 export enum Result {
-  white_win ='1-0',
-  black_win = '0-1',
-  draw = '1/2-1/2'
+  WHITE_WIN ='1-0',
+  BLACK_WIN = '0-1',
+  DRAW = '1/2-1/2'
+}
+
+export enum Platform {
+  LICHESS ='LICHESS',
+  CHESS_COM = 'CHESS_COM',
+  OTB = 'OTB'
 }
 
 
@@ -23,8 +28,7 @@ export class Game {
   @JoinColumn()
   blackPlayer: Person
 
-  @ManyToOne(type => Platform, platform => platform.games)
-  @JoinColumn()
+  @Column()
   platform: Platform
 
   @Column({ type: 'date' })

@@ -2,33 +2,37 @@ import * as t from 'runtypes';
 import express from 'express';
 
 import GameService from '../service';
+import UserService from '../../users/service';
 import PersonService from '../../persons/service';
 import { getConnection } from 'typeorm';
 import { Game } from '../entity';
-import { Person, PersonPlatform } from '../../persons/entity';
+import { Person } from '../../persons/entity';
+import { User } from '../../users/entity';
 
 const Params = t.Record({
-  username: t.String,
-  email: t.String,
-  password: t.String
+  pgn: t.String,
 });
 
 
 export function saveHandlers() {
   console.log('getting connection!')
-  // const userService = UserService(getConnection().getRepository(User));
-  // const personService = PersonService(getConnection().getRepository(Person), getConnection().getRepository(PersonPlatform));
-  const gameService = GameService(getConnection().getRepository(Game));
+  const userService = UserService(getConnection().getRepository(User), getConnection().getRepository(Person));
+  // const personService = PersonService(getConnection().getRepository(Person));
+  const gameService = GameService(getConnection().getRepository(Game), getConnection().getRepository(Person));
 
   return {
-      createUser: async function(
+      createGame: async function(
           req: express.Request,
           res: express.Response
         ): Promise<void> {
-          const params = Params.check(req.body);
-          const user = await userService.createUser(params.username, params.email, params.password)
+          const body = Params.check(req.body);
 
-          await personService.createPerson(user);
+          // todo temporary until login comes
+          const [currentUser] = await userService.getUsers();
+
+          const game = await gameService.create(currentUser, body.pgn)
+
+          console.log('created game', game);
 
           res.json({status: 'success'});
         }

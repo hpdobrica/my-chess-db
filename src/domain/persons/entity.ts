@@ -1,6 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToOne, PrimaryColumn, ManyToMany, JoinTable, OneToMany } from "typeorm";
+
+import { Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn, ManyToOne, PrimaryColumn, ManyToMany, JoinTable, OneToMany } from "typeorm";
 import { Game } from "../games/entity";
-import { Platform } from "../platforms/entity";
+import { ChessComProfile } from "../profiles/chessCom/entity";
+import { LichessProfile } from "../profiles/lichess/entity";
+import { OtbProfile } from "../profiles/otb/entity";
 import { User } from "../users/entity";
 
 @Entity()
@@ -9,22 +12,19 @@ export class Person {
   id: string;
 
   @OneToOne(type => User)
-  @JoinColumn()
   user: User;
 
-  @ManyToMany(type => Platform, platform => platform.persons)
-  @JoinTable({
-    name: 'person_platform',
-    joinColumn: {
-      name: 'personId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'platformId',
-      referencedColumnName: 'id',
-    },
-  })
-  platforms: Platform[];
+  @OneToOne(type => ChessComProfile)
+  @JoinColumn()
+  chessComProfile: ChessComProfile;
+
+  @OneToOne(type => LichessProfile)
+  @JoinColumn()
+  lichessProfile: LichessProfile;
+
+  @OneToOne(type => OtbProfile)
+  @JoinColumn()
+  otbProfile: OtbProfile;
 
   @OneToMany(type => Game, (game) => game.whitePlayer)
   gamesAsWhite: Game[]
@@ -32,24 +32,4 @@ export class Person {
   @OneToMany(type => Game, (game) => game.blackPlayer)
   gamesAsBlack: Game[]
 
-}
-
-@Entity('person_platform')
-export class PersonPlatform {
-
-  @Column()
-  @PrimaryColumn()
-  personId: string;
-
-  @Column()
-  @PrimaryColumn()
-  platformId: string;
-
-  @ManyToOne(type => User, user => user.otbPersons)
-  otbOwner: User
-
-  @Column({
-    nullable: true
-  })
-  username: string;
 }

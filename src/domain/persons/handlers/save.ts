@@ -2,44 +2,41 @@ import * as t from 'runtypes';
 import express from 'express';
 
 import PersonService from '../service';
-import PlatformService from '../../platforms/service';
 import { getConnection } from 'typeorm';
-import { Person, PersonPlatform } from '../../persons/entity';
-import { Platform } from '../../platforms/entity';
+import { Person } from '../../persons/entity';
+import { Platform } from '../../games/entity';
+import { runtypeFromEnum } from '../../../util';
+import { LichessProfile } from '../../profiles/lichess/entity';
 
 const Params = t.Record({
-  platformId: t.String,
   personId: t.String,
 });
 
 const Body = t.Record({
   username: t.String,
+  profileType: runtypeFromEnum(Platform),
 });
 
-// POST /api/persons/{personId}/platforms/{platformId}
-// {username: test}
+// POST /api/persons/{personId}/attachProfile
+// {
+//   username: test,
+//   profileType: CHESS_COM
+// }
 
 export function saveHandlers() {
-  const personService = PersonService(getConnection().getRepository(Person), getConnection().getRepository(PersonPlatform));
-  const platformService = PlatformService(getConnection().getRepository(Platform));
+  const personService = PersonService(getConnection().getRepository(Person), getConnection().getRepository(LichessProfile));
 
   return {
-      addPlatform: async function(
+      attachProfile: async function(
           req: express.Request,
           res: express.Response
         ): Promise<void> {
           const params = Params.check(req.params);
           const body = Body.check(req.body);
 
-          const person = await personService.getById(params.personId);
+          await personService.attachProfile(params.personId, body.profileType, body.username)
 
-          console.log('person platforms check', person.platforms);
-
-          const platform = await platformService.getById(params.platformId);
-          await personService.addPlatform(person, platform, body.username);
-
-
-          res.json({status: 'success'});
+          res.send({status: 'success'})
         }
   }
 }
