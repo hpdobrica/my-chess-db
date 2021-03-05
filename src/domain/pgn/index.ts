@@ -1,9 +1,10 @@
+import { platform } from 'os';
 import {parse} from 'pgn-parser';
-import { Result } from '../games/entity';
+import { Platform, Result } from '../games/entity';
 
-type GameData = {
+export type GameData = {
     headers: {
-        platform: string;
+        platform: Platform;
         black: string;
         white: string;
         result: Result;
@@ -39,12 +40,11 @@ export const parseGames = (pgn: string): GameData[] => {
 
         const result = game.headers.find((header) => header.name === 'Result');
 
-        if(!(result in Result)) {
-            throw new Error('invalid result while parsing pgn')
+        if(!(Object.values(Result).includes(result.value))) {
+            throw new Error(`invalid result while parsing pgn - ${result.value}`)
         }
 
-        const platform = game.headers.find((header) => header.name === 'Site');
-
+        const platform = parsePlatform(game.headers)
         const date = game.headers.find((header) => header.name === 'Date');
 
         const timeControl = game.headers.find((header) => header.name === 'TimeControl');
@@ -56,7 +56,7 @@ export const parseGames = (pgn: string): GameData[] => {
             black: black.value as string,
             white: white.value as string,
             result: result.value as Result,
-            platform: platform.value as string,
+            platform: platform,
             
             date: new Date(date.value),
 
@@ -77,6 +77,27 @@ export const parseGames = (pgn: string): GameData[] => {
 
     return games;
 
+}
+
+function parsePlatform(rawHeaders: any[]): Platform {
+    // 
+    const site = rawHeaders.find((header) => header.name === 'Site').value as string;
+
+
+    if(site === 'Chess.com') {
+        return Platform.CHESS_COM
+    }
+
+    if(site.includes('lichess.org')) {
+        return Platform.LICHESS
+    }
+
+    const mode = rawHeaders.find((header) => header.name === 'Mode') as string;
+
+    if(mode.toUpperCase() === 'OTB') {
+        return Platform.OTB
+    }
+    
 }
 
 

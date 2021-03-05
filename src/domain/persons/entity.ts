@@ -11,7 +11,7 @@ export class Person {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @OneToOne(type => User)
+  @OneToOne(type => User, (user) => user.person)
   user: User;
 
   @OneToOne(type => ChessComProfile)

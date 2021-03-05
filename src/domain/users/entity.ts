@@ -19,7 +19,7 @@ export class User {
   @OneToMany(type => OtbProfile, otbProfile => otbProfile.owner)
   otbProfiles: OtbProfile[]
 
-  @OneToOne(type => Person)
+  @OneToOne(type => Person, (person) => person.user)
   @JoinColumn()
   person: Person
 

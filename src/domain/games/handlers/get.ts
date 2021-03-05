@@ -5,12 +5,13 @@ import GameService from '../service';
 import { getConnection } from 'typeorm';
 import { Game } from '../entity';
 import { Person } from '../../persons/entity';
+import { User } from '../../users/entity';
 
 
 
 export function getHandlers() {
     console.log('getting connection!')
-    const gameService = GameService(getConnection().getRepository(Game), getConnection().getRepository(Person));
+    const gameService = GameService(getConnection().getRepository(Game), getConnection().getRepository(Person), getConnection().getRepository(User));
 
     return {
         getGames: async function(
