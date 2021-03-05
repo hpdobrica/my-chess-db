@@ -1,45 +1,136 @@
 import {Repository} from "typeorm";
 
-import {Game, Result} from '../entity';
+import {Game, Platform, Result} from '../entity';
 
 
 import { User } from '../../users/entity';
 import { parseGames, GameData } from "../../pgn";
 import { Person } from "../../persons/entity";
+import { getUsernameForPlatform } from "../../persons/helpers";
+import { ChessComProfile } from "../../profiles/chessCom/entity";
+import { LichessProfile } from "../../profiles/lichess/entity";
+import { OtbProfile } from "../../profiles/otb/entity";
 
 
-export default function GameService(gameRepo: Repository<Game>, personRepo: Repository<Person>, userRepo: Repository<User>) {
+export default function GameService(
+  gameRepo: Repository<Game>, 
+  personRepo: Repository<Person>, 
+  userRepo: Repository<User>, 
+  chessComRepo: Repository<ChessComProfile>, 
+  lichessRepo: Repository<LichessProfile>, 
+  otbRepo: Repository<OtbProfile>) {
   return {
-    create: async (creatorId: string, pgn: string): Promise<Game[]> => {
+    create: async (personId: string, pgn: string): Promise<Game[]> => {
 
 
         const gameData = parseGames(pgn);
 
+        const person = await personRepo.findOne({id: personId}, {relations:['chessComProfile', 'otbProfile', 'lichessProfile']})
+
         const promises = gameData.map(async (data) => {
           const game = new Game();
+          const platform = data.headers.platform
+
+          // const owner = getUsernameForPlatform(person, platform)
+          
+          // const opponentUsername = data.headers.white === owner ? data.headers.black : data.headers.white;
+          // const opponentPerson = new Person();
+
+          let ownerUsername: string;
+          let opponentPerson: Person;
+
+
+          
+          const gamesWithHash = await gameRepo.find({where: {hash: data.hash, platform: data.headers.platform, date: data.headers.date}})
+          if(gamesWithHash.length !== 0) {
+            console.log(gamesWithHash);
+            console.log('game already added, skipping')
+            return;
+          }
+
+          switch(platform) {
+            case Platform.CHESS_COM: {
+              ownerUsername = person.chessComProfile.username;
+              const opponentUsername = data.headers.white === ownerUsername ? data.headers.black : data.headers.white;
+
+              const opponentProfile = await chessComRepo.findOne({username: opponentUsername});
+              opponentPerson = await personRepo.findOne({where: {chessComProfile: opponentProfile}})
+
+
+              if(!opponentPerson) {
+                opponentPerson = new Person();
+                let opponentProfile = new ChessComProfile();
+
+                opponentProfile.username = opponentUsername;
+                opponentProfile = await chessComRepo.save(opponentProfile);
+
+                opponentPerson.chessComProfile = opponentProfile;
+                opponentPerson = await personRepo.save(opponentPerson);
+              }
+              break;
+            }
+            case Platform.LICHESS: {
+              ownerUsername = person.lichessProfile.username;
+              const opponentUsername = data.headers.white === ownerUsername ? data.headers.black : data.headers.white;
+
+              const opponentProfile = await lichessRepo.findOne({username: opponentUsername});
+              opponentPerson = await personRepo.findOne({where: {lichessProfile: opponentProfile}})
+
+
+              if(!opponentPerson) {
+                opponentPerson = new Person();
+                let opponentProfile = new LichessProfile();
+
+                opponentProfile.username = opponentUsername;
+                opponentProfile = await lichessRepo.save(opponentProfile);
+
+                opponentPerson.lichessProfile = opponentProfile;
+                opponentPerson = await personRepo.save(opponentPerson);
+              }
+              break;
+            }
+            case Platform.OTB: {
+              ownerUsername = person.otbProfile.username;
+              const opponentUsername = data.headers.white === ownerUsername ? data.headers.black : data.headers.white;
+
+              const opponentProfile = await otbRepo.findOne({username: opponentUsername});
+              opponentPerson = await personRepo.findOne({where: {otbProfile: opponentProfile}})
+
+              if(!opponentPerson) {
+                opponentPerson = new Person();
+                let opponentProfile = new OtbProfile();
+
+                opponentProfile.username = opponentUsername;
+                const ownerUser = await userRepo.findOne({person: {id: personId}})
+                opponentProfile.owner = ownerUser;
+                opponentProfile = await otbRepo.save(opponentProfile);
+
+                opponentPerson.otbProfile = opponentProfile;
+                opponentPerson = await personRepo.save(opponentPerson);
+              }
+              break;
+            }
+          }
+
           
 
-          // todo create white and black persons, find appropriate platform
-          // personRepo.
-
-          // game.blackPlayer = data.headers.black
-          // game.whitePlayer = data.headers.white
-          // game.date = data.headers.date
-          // game.platform = data.headers.platform
-          // game.result = data.headers.result
-          // game.pgn = data.pgn
+          game.blackPlayer = data.headers.black === ownerUsername ? person : opponentPerson
+          game.whitePlayer = data.headers.white === ownerUsername ? person : opponentPerson
+          game.date = data.headers.date
+          game.platform = data.headers.platform
+          game.result = data.headers.result
+          game.pgn = data.pgn
+          game.hash = data.hash
 
           return gameRepo.save(game)
           
 
         })
 
-
-        
         return Promise.all(promises);
     },
 
-    checkOwnership: async (userId:string, pgns: string) => {
+    checkOwnership: async (personId:string, pgns: string): Promise<boolean> => {
       const games = parseGames(pgns)
 
       type GamesByPlatform = {
@@ -57,17 +148,13 @@ export default function GameService(gameRepo: Repository<Game>, personRepo: Repo
         return acc;
       },{})
 
-      const user = await userRepo.findOne({id: userId}, {relations: ['person']});
-      const person = await personRepo.findOne({id: user.person.id}, {relations:['chessComProfile', 'otbProfile', 'lichessProfile']})
-
-      console.log('persons chess com profile', person.chessComProfile)
-      console.log('persons lichess profile', person.lichessProfile)
+      const person = await personRepo.findOne({id: personId}, {relations:['chessComProfile', 'otbProfile', 'lichessProfile']})
       
-      if(gamesByPlatform.ChessCom) {
+      if(gamesByPlatform[Platform.CHESS_COM]) {
         if(!person.chessComProfile) {
           throw new Error('PROFILE_NOT_CONNECTED')
         }
-        const notOwnedGamesFound = gamesByPlatform.ChessCom.some((game) => {
+        const notOwnedGamesFound = gamesByPlatform[Platform.CHESS_COM].some((game) => {
           if(game.headers.black !== person.chessComProfile.username && game.headers.white !== person.chessComProfile.username) {
             return true;
           }
@@ -77,19 +164,38 @@ export default function GameService(gameRepo: Repository<Game>, personRepo: Repo
         }
       }
 
-      if(gamesByPlatform.Lichess) {
+
+      if(gamesByPlatform[Platform.LICHESS]) {
         if(!person.lichessProfile) {
           throw new Error('PROFILE_NOT_CONNECTED')
         }
-        const notOwnedGamesFound = gamesByPlatform.Lichess.some((game) => {
+        const notOwnedGamesFound = gamesByPlatform[Platform.LICHESS].some((game) => {
           if(game.headers.black !== person.lichessProfile.username && game.headers.white !== person.lichessProfile.username) {
             return true;
           }
         })
+        console.log(notOwnedGamesFound);
         if(notOwnedGamesFound) {
           throw new Error('GAME_NOT_OWNED_BY_USER')
         }
       }
+
+      if(gamesByPlatform[Platform.OTB]) {
+        if(!person.otbProfile) {
+          throw new Error('PROFILE_NOT_CONNECTED')
+        }
+        const notOwnedGamesFound = gamesByPlatform[Platform.OTB].some((game) => {
+          if(game.headers.black !== person.otbProfile.username && game.headers.white !== person.otbProfile.username) {
+            return true;
+          }
+        })
+        console.log(notOwnedGamesFound);
+        if(notOwnedGamesFound) {
+          throw new Error('GAME_NOT_OWNED_BY_USER')
+        }
+      }
+
+      return true;
 
       
 

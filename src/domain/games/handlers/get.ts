@@ -6,12 +6,15 @@ import { getConnection } from 'typeorm';
 import { Game } from '../entity';
 import { Person } from '../../persons/entity';
 import { User } from '../../users/entity';
+import { ChessComProfile } from '../../profiles/chessCom/entity';
+import { LichessProfile } from '../../profiles/lichess/entity';
+import { OtbProfile } from '../../profiles/otb/entity';
 
 
 
 export function getHandlers() {
     console.log('getting connection!')
-    const gameService = GameService(getConnection().getRepository(Game), getConnection().getRepository(Person), getConnection().getRepository(User));
+    const gameService = GameService(getConnection().getRepository(Game), getConnection().getRepository(Person), getConnection().getRepository(User),getConnection().getRepository(ChessComProfile),getConnection().getRepository(LichessProfile), getConnection().getRepository(OtbProfile));
 
     return {
         getGames: async function(

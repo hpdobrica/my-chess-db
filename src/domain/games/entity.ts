@@ -39,4 +39,7 @@ export class Game {
 
   @Column()
   pgn: string
+
+  @Column()
+  hash: string
 }

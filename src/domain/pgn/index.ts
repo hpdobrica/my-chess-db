@@ -2,6 +2,8 @@ import { platform } from 'os';
 import {parse} from 'pgn-parser';
 import { Platform, Result } from '../games/entity';
 
+import {createHash} from 'crypto';
+
 export type GameData = {
     headers: {
         platform: Platform;
@@ -19,7 +21,8 @@ export type GameData = {
             nags?: string;
         }
     ],
-    pgn: string
+    pgn: string,
+    hash: string
 }
 
 export const parseGames = (pgn: string): GameData[] => {
@@ -67,10 +70,14 @@ export const parseGames = (pgn: string): GameData[] => {
         const moves = game.moves as GameData['moves']
 
         const gamePgn = getOnePgn(pgn, i);
+
+        const hash = createHash('md5').update(gamePgn).digest('base64')
+
         return {
             moves,
             headers,
-            pgn: gamePgn
+            pgn: gamePgn,
+            hash
         }
 
     })
@@ -122,7 +129,6 @@ function getOnePgn(pgn: string, index: number): string {
             return;
         }
         if(count == index) {
-            console.log('3')
             result+=`${row}\n`
         }
         if(count > index) {
