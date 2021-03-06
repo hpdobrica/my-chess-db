@@ -14,7 +14,8 @@ export function requireAuthMiddleware(req: Request, res: Response, next: NextFun
 
     const requestHeader = "X-JWT-Token";
     const responseHeader = "X-Renewed-JWT-Token";
-    const header = req.header(requestHeader);
+
+    const header = req.headers[requestHeader] as string;
     
     if (!header) {
         unauthorized(`Required ${requestHeader} header not found.`);

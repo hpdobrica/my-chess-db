@@ -17,9 +17,10 @@ export function encodeSession(partialSession: PartialSession): EncodeResult {
         expires: expires
     };
 
+    // todo: make async
+    const token = jwt.sign(session, config.JWT_SECRET, {algorithm});
     return {
-        // todo: make async
-        token: jwt.sign(session, config.JWT_SECRET, {algorithm}),
+        token,
         issued,
         expires
     }

@@ -1,6 +1,7 @@
-import bodyParser from 'body-parser';
 import express from 'express';
 import cors from 'cors';
+import * as useragent from 'express-useragent';
+import cookieParser from 'cookie-parser';
 
 import { createApi } from './api';
 
@@ -8,8 +9,11 @@ import { createApi } from './api';
 export function CreateServer() {
     const app = express();
     app.disable("x-powered-by");
-    app.use(bodyParser.json());
+    app.use(express.json());
     app.use(cors())
+    app.use(useragent.express());
+    
+    app.use(cookieParser());
 
 
     app.use('/api', createApi());

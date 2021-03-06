@@ -52,14 +52,32 @@ export function postHandlers() {
         res.status(401).json({status: 'failure', message: 'Bad credentials'});
         return;
       }
-      
-      const result = encodeSession({
+
+
+
+      const encodedSession = encodeSession({
         username: user.username,
         email: user.email,
         userId: user.id,
         personId: user.person.id
       });
-      res.json(result);
+
+      const requestingCookieAuth = req.header('X-Cookie-Authentication');
+
+      if(requestingCookieAuth) {
+        const splitToken = encodedSession.token.split('.')
+        res.cookie('header.payload', `${splitToken[0]}.${splitToken[1]}`, {expires: new Date(encodedSession.expires)})
+
+        res.cookie('signature', splitToken[2], {httpOnly: true})
+        
+        res.json({status: 'success'})
+        return;
+      }
+
+      
+      res.json(encodedSession);
+      
+      
     },
   }
 }
