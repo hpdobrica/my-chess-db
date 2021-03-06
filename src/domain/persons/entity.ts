@@ -14,15 +14,15 @@ export class Person {
   @OneToOne(type => User, (user) => user.person)
   user: User;
 
-  @OneToOne(type => ChessComProfile)
+  @OneToOne(type => ChessComProfile, chessCom => chessCom.username)
   @JoinColumn()
   chessComProfile: ChessComProfile;
 
-  @OneToOne(type => LichessProfile)
+  @OneToOne(type => LichessProfile, lichess => lichess.username)
   @JoinColumn()
   lichessProfile: LichessProfile;
 
-  @OneToOne(type => OtbProfile)
+  @OneToOne(type => OtbProfile, otbProfile => otbProfile.id)
   @JoinColumn()
   otbProfile: OtbProfile;
 

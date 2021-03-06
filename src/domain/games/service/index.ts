@@ -31,16 +31,9 @@ export default function GameService(
           const game = new Game();
           const platform = data.headers.platform
 
-          // const owner = getUsernameForPlatform(person, platform)
-          
-          // const opponentUsername = data.headers.white === owner ? data.headers.black : data.headers.white;
-          // const opponentPerson = new Person();
-
           let ownerUsername: string;
           let opponentPerson: Person;
 
-
-          
           const gamesWithHash = await gameRepo.find({where: {hash: data.hash, platform: data.headers.platform, date: data.headers.date}})
           if(gamesWithHash.length !== 0) {
             console.log(gamesWithHash);
@@ -53,8 +46,8 @@ export default function GameService(
               ownerUsername = person.chessComProfile.username;
               const opponentUsername = data.headers.white === ownerUsername ? data.headers.black : data.headers.white;
 
-              const opponentProfile = await chessComRepo.findOne({username: opponentUsername});
-              opponentPerson = await personRepo.findOne({where: {chessComProfile: opponentProfile}})
+              // const opponentProfile = await chessComRepo.findOne({username: opponentUsername});
+              opponentPerson = await personRepo.findOne({where: {chessComProfile: opponentUsername}})
 
 
               if(!opponentPerson) {
@@ -73,8 +66,8 @@ export default function GameService(
               ownerUsername = person.lichessProfile.username;
               const opponentUsername = data.headers.white === ownerUsername ? data.headers.black : data.headers.white;
 
-              const opponentProfile = await lichessRepo.findOne({username: opponentUsername});
-              opponentPerson = await personRepo.findOne({where: {lichessProfile: opponentProfile}})
+              // const opponentProfile = await lichessRepo.findOne({username: opponentUsername});
+              opponentPerson = await personRepo.findOne({where: {lichessProfile: opponentUsername}})
 
 
               if(!opponentPerson) {
@@ -93,7 +86,7 @@ export default function GameService(
               ownerUsername = person.otbProfile.username;
               const opponentUsername = data.headers.white === ownerUsername ? data.headers.black : data.headers.white;
 
-              const opponentProfile = await otbRepo.findOne({username: opponentUsername});
+              const opponentProfile = await otbRepo.findOne({username: opponentUsername, owner: person.user});
               opponentPerson = await personRepo.findOne({where: {otbProfile: opponentProfile}})
 
               if(!opponentPerson) {
@@ -101,7 +94,8 @@ export default function GameService(
                 let opponentProfile = new OtbProfile();
 
                 opponentProfile.username = opponentUsername;
-                const ownerUser = await userRepo.findOne({person: {id: personId}})
+                // const ownerUser = await userRepo.findOne({person: {id: personId}})
+                const ownerUser = await userRepo.findOne(person.user.id)
                 opponentProfile.owner = ownerUser;
                 opponentProfile = await otbRepo.save(opponentProfile);
 
@@ -148,7 +142,8 @@ export default function GameService(
         return acc;
       },{})
 
-      const person = await personRepo.findOne({id: personId}, {relations:['chessComProfile', 'otbProfile', 'lichessProfile']})
+      const person = await personRepo.findOne(personId, {relations:['chessComProfile', 'otbProfile', 'lichessProfile']})
+      
       
       if(gamesByPlatform[Platform.CHESS_COM]) {
         if(!person.chessComProfile) {
@@ -181,11 +176,9 @@ export default function GameService(
       }
 
       if(gamesByPlatform[Platform.OTB]) {
-        if(!person.otbProfile) {
-          throw new Error('PROFILE_NOT_CONNECTED')
-        }
+        const user = await userRepo.findOne(person.user.id)
         const notOwnedGamesFound = gamesByPlatform[Platform.OTB].some((game) => {
-          if(game.headers.black !== person.otbProfile.username && game.headers.white !== person.otbProfile.username) {
+          if(game.headers.black !== user.username && game.headers.white !== user.username) {
             return true;
           }
         })

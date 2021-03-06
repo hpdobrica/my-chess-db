@@ -22,7 +22,7 @@ const Body = t.Record({
 export function postHandlers() {
   console.log('getting connection!')
   const userService = UserService(getConnection().getRepository(User), getConnection().getRepository(Person));
-  // const personService = PersonService(getConnection().getRepository(Person));
+  // const personService = PersonService(getConnection().getRepository(Person), getConnection().getRepository(LichessProfile), getConnection().getRepository(ChessComProfile), getConnection().getRepository(OtbProfile));
   const gameService = GameService(getConnection().getRepository(Game), getConnection().getRepository(Person), getConnection().getRepository(User),getConnection().getRepository(ChessComProfile),getConnection().getRepository(LichessProfile), getConnection().getRepository(OtbProfile));
 
   return {

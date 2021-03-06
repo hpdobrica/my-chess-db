@@ -4,9 +4,11 @@ import {Repository} from "typeorm";
 import { User } from '../../users/entity';
 import { Platform } from '../../games/entity';
 import { LichessProfile } from '../../profiles/lichess/entity';
+import { ChessComProfile } from '../../profiles/chessCom/entity';
+import { OtbProfile } from '../../profiles/otb/entity';
 
 
-export default function PersonService(personRepo: Repository<Person>, lichessProfileRepo: Repository<LichessProfile> ) {
+export default function PersonService(personRepo: Repository<Person>, lichessProfileRepo: Repository<LichessProfile>, chessComProfileRepo: Repository<ChessComProfile>, otbProfileRepo: Repository<OtbProfile> ) {
   return {
     // createPerson: async (user: User): Promise<Person> => {
     //     const person = new Person();
@@ -22,9 +24,6 @@ export default function PersonService(personRepo: Repository<Person>, lichessPro
     },
     getById: async (id: string):Promise<Person> => {
       const person = await personRepo.findOne(id)
-      // ), {
-      //   relations: ['platforms']
-      // })
 
       return person;
   },
@@ -33,11 +32,20 @@ export default function PersonService(personRepo: Repository<Person>, lichessPro
       const person = await personRepo.findOne(personId);
 
       if(!person) {
-        throw new Error('no person found')
+        throw new Error('NO_PERSON_FOUND')
       }
       
       if(platform === Platform.CHESS_COM){
-        console.log('todo')
+        const chessComProfile = new ChessComProfile()
+
+        chessComProfile.username = username;
+
+        console.log('about to save lichess profile')
+        await chessComProfileRepo.save(chessComProfile)
+
+        console.log('about to save person')
+        person.chessComProfile = chessComProfile;
+        await personRepo.save(person);
       } else if (platform === Platform.LICHESS){
         const lichessProfile = new LichessProfile()
 
@@ -51,9 +59,9 @@ export default function PersonService(personRepo: Repository<Person>, lichessPro
         await personRepo.save(person);
 
       }else if (platform === Platform.OTB) {
-        console.log('todo')
+        throw new Error('FEATURE_NOT_SUPPORTED')
       } else {
-        throw new Error('invalid platform')
+        throw new Error('INVALID_PLATFORM')
       }
     }
 

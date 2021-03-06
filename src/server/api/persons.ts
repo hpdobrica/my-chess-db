@@ -8,7 +8,7 @@ export function createRouter(): Router {
     const Persons = express.Router();
 
     Persons.use(requireAuthMiddleware)
-    Persons.post('/:personId/attachProfile', handler(personHandler.postHandlers().attachProfile));
+    Persons.post('/attachProfile', handler(personHandler.postHandlers().attachProfile));
 
     return Persons;
 
