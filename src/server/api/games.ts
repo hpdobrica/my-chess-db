@@ -15,6 +15,10 @@ export function createRouter(): Router {
 
     // protected
     Games.post('/', handler(gameHandlers.postHandlers().createGame));
+    Games.get('/', handler(gameHandlers.getHandlers().getGames));
+    Games.get('/:id', handler(gameHandlers.getHandlers().getGameById));
+
+    
 
     
 

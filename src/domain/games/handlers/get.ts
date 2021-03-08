@@ -22,8 +22,28 @@ export function getHandlers() {
             res: express.Response
           ): Promise<void> {
             const games = await gameService.getAll()
-            res.json({games});
+            const gamesResponse = games.map((game) => {
+              delete game.pgn
+              delete game.hash
+              return game
+            })
+            res.json(gamesResponse);
+          },
+        getGameById: async function(
+            req: express.Request,
+            res: express.Response
+          ): Promise<void> {
+
+            const Params = t.Record({
+              id: t.String,
+            });
+            const params = Params.check(req.params);
+
+            const game = await gameService.getById(params.id);
+            
+            res.json(game);
           }
     }
+
 }
 

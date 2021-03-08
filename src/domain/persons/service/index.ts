@@ -23,7 +23,9 @@ export default function PersonService(personRepo: Repository<Person>, lichessPro
         return persons;
     },
     getById: async (id: string):Promise<Person> => {
-      const person = await personRepo.findOne(id)
+      const person = await personRepo.findOne(id, {
+        relations: ['chessComProfile', 'lichessProfile', 'otbProfile']
+      })
 
       return person;
   },

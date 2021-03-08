@@ -195,9 +195,36 @@ export default function GameService(
     },
 
     getAll: async ():Promise<Game[]> => {
-        const games = await gameRepo.find()
+      // const games = await gameRepo.find({relations: [
+      //   'whitePlayer', 
+      //   'whitePlayer.chessComProfile', 
+      //   'whitePlayer.lichessProfile',
+      //   'whitePlayer.otbProfile',
+      //   'blackPlayer',
+      //   'blackPlayer.chessComProfile', 
+      //   'blackPlayer.lichessProfile',
+      //   'blackPlayer.otbProfile',
+        
+      // ], select: ['id', 'platform', 'result', 'date']});
 
-        return games;
-    }
+      const games = await gameRepo.find({loadRelationIds: true});
+
+      return games;
+    },
+    getById: async (id: string):Promise<Game> => {
+      const games = await gameRepo.findOne(id, {relations: [
+        'whitePlayer', 
+        'whitePlayer.chessComProfile', 
+        'whitePlayer.lichessProfile',
+        'whitePlayer.otbProfile',
+        'blackPlayer',
+        'blackPlayer.chessComProfile', 
+        'blackPlayer.lichessProfile',
+        'blackPlayer.otbProfile',
+        
+      ]})
+
+      return games;
+  },
   };
 }

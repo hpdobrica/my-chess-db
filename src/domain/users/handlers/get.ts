@@ -21,7 +21,7 @@ export function getHandlers() {
                 delete user.password
                 return user;
             });
-            res.json({users: usersResponse});
+            res.json(usersResponse);
           }
     }
 }

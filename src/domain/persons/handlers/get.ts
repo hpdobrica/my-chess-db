@@ -12,32 +12,24 @@ import { OtbProfile } from '../../profiles/otb/entity';
 import { Session } from '../../sessions/types';
 
 
-const Body = t.Record({
-  username: t.String,
-  profileType: runtypeFromEnum(Platform),
-});
 
-// POST /api/persons/attachProfile
-// {
-//   username: test,
-//   profileType: CHESS_COM
-// }
 
-export function postHandlers() {
+export function getHandlers() {
   const personService = PersonService(getConnection().getRepository(Person), getConnection().getRepository(LichessProfile), getConnection().getRepository(ChessComProfile), getConnection().getRepository(OtbProfile));
 
   return {
-      attachProfile: async function(
+      getById: async function(
           req: express.Request,
           res: express.Response
         ): Promise<void> {
-          const body = Body.check(req.body);
+          const Params = t.Record({
+              id: t.String,
+          });
+          const params = Params.check(req.params);
 
-          const session = res.locals.session as Session;
+          const person = await personService.getById(params.id)
 
-          await personService.attachProfile(session.personId, body.profileType, body.username)
-
-          res.send({status: 'success'})
+          res.send(person)
         }
   }
 }
