@@ -33,6 +33,12 @@ export default function UserService(userRepo: Repository<User>, personRepo: Repo
       const user = await userRepo.findOneOrFail({ email }, {relations: ['person']})
 
       return user;
-  },
+    },
+
+    getById: async (id: string):Promise<User> => {
+      const user = await userRepo.findOneOrFail(id, {relations: ['person']})
+
+      return user;
+    },
   };
 }

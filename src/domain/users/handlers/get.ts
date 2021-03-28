@@ -22,6 +22,21 @@ export function getHandlers() {
                 return user;
             });
             res.json(usersResponse);
+          },
+          getUserById: async function(
+            req: express.Request,
+            res: express.Response
+          ): Promise<void> {
+            const Params = t.Record({
+              id: t.String,
+            });
+            const params = Params.check(req.params);
+
+            const user = await userService.getById(params.id);
+
+            delete user.password;
+
+            res.json(user);
           }
     }
 }
