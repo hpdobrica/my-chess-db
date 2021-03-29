@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { unauthorized } from "../../app/responses";
 import { checkExpirationStatus, decodeSession, encodeSession } from "../../domain/sessions";
 import { DecodeResult, ExpirationStatus, Session } from "../../domain/sessions/types";
 
@@ -6,19 +7,13 @@ import { DecodeResult, ExpirationStatus, Session } from "../../domain/sessions/t
  * Express middleware, checks for a valid JSON Web Token and returns 401 Unauthorized if one isn't found.
  */
 export function requireAuthMiddleware(req: Request, res: Response, next: NextFunction) {
-    const unauthorized = (message: string) => res.status(401).json({
-        ok: false,
-        status: 401,
-        message: message
-    });
-
     const requestHeader = "X-JWT-Token";
     const responseHeader = "X-Renewed-JWT-Token";
 
     const header = req.headers[requestHeader] as string;
     
     if (!header) {
-        unauthorized(`Required ${requestHeader} header not found.`);
+        unauthorized(res, `Required ${requestHeader} header not found.`);
         return;
     }
 
@@ -27,19 +22,19 @@ export function requireAuthMiddleware(req: Request, res: Response, next: NextFun
         decodedSession = decodeSession(header);
     } catch(_e) {
         const e: Error = _e
-        unauthorized(`Unexpected error: ${e.message}`)
+        unauthorized(res, `Unexpected error: ${e.message}`)
     }
      
     
     if (decodedSession.type === "invalid-token") {
-        unauthorized(`Failed to decode or validate authorization token. Reason: ${decodedSession.type}.`);
+        unauthorized(res, `Failed to decode or validate authorization token. Reason: ${decodedSession.type}.`);
         return;
     }
 
     const expiration: ExpirationStatus = checkExpirationStatus(decodedSession.session);
 
     if (expiration === "expired") {
-        unauthorized(`Authorization token has expired. Please create a new authorization token.`);
+        unauthorized(res, `Authorization token has expired. Please create a new authorization token.`);
         return;
     }
 

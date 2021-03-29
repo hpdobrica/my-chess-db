@@ -8,8 +8,14 @@ export function createRouter(): Router {
     const Persons = express.Router();
 
     Persons.use(requireAuthMiddleware)
+    Persons.get('/', handler(personHandler.getHandlers().getAll));
     Persons.get('/:id', handler(personHandler.getHandlers().getById));
-    Persons.post('/attachProfile', handler(personHandler.postHandlers().attachProfile));
+    Persons.get('/:id/games', )
+
+    Persons.put('/:id/profiles/:profile', handler(personHandler.postHandlers().attachProfile));
+    Persons.delete('/:id/profiles/:profile', handler(personHandler.postHandlers().detachProfile));
+    
+    
 
     return Persons;
 
