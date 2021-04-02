@@ -13,7 +13,6 @@ import { OtbProfile } from '../../profiles/otb/entity';
 
 
 export function getHandlers() {
-    console.log('getting connection!')
     const gameService = GameService(getConnection().getRepository(Game), getConnection().getRepository(Person), getConnection().getRepository(User),getConnection().getRepository(ChessComProfile),getConnection().getRepository(LichessProfile), getConnection().getRepository(OtbProfile));
 
     return {
