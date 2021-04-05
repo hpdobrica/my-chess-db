@@ -36,11 +36,11 @@ export function getHandlers() {
           res: express.Response
         ): Promise<void> {
           const Params = t.Record({
-              id: t.String,
+              personId: t.String,
           });
           const params = Params.check(req.params);
 
-          const person = await personService.getById(params.id)
+          const person = await personService.getById(params.personId)
 
           res.send(person)
         },
@@ -51,13 +51,34 @@ export function getHandlers() {
           res: express.Response
         ): Promise<void> {
           const Params = t.Record({
-              id: t.String,
+              personId: t.String,
           });
           const params = Params.check(req.params);
 
-          const games = await gameService.getByPersonId(params.id);
+          const games = await gameService.getByPersonId(params.personId);
 
-          res.send(games)
+          const gamesResponse = games.map((game) => {
+            delete game.pgn
+            delete game.hash
+            return game
+          })
+
+          res.send(gamesResponse)
+        },
+
+        getSingleGame: async function(
+          req: express.Request,
+          res: express.Response
+        ): Promise<void> {
+          const Params = t.Record({
+              personId: t.String,
+              gameId: t.String
+          });
+          const params = Params.check(req.params);
+
+          const game = await gameService.getById(params.gameId);
+
+          res.send(game)
         }
   }
 }

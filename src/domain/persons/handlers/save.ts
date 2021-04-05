@@ -33,7 +33,7 @@ export function postHandlers() {
           res: express.Response
         ): Promise<void> {
           const Params = t.Record({
-            id: t.String,
+            personId: t.String,
             profile: runtypeFromEnum(Platform),
           });
           const Body = t.Record({
@@ -45,7 +45,7 @@ export function postHandlers() {
 
           const session = res.locals.session as Session;
 
-          if(session.personId !== params.id) {
+          if(session.personId !== params.personId) {
             forbidden(res, `Invalid person`);
             return;
           }
@@ -59,7 +59,7 @@ export function postHandlers() {
           res: express.Response
         ): Promise<void> {
           const Params = t.Record({
-            id: t.String,
+            personId: t.String,
             profile: runtypeFromEnum(Platform),
           });
 
@@ -67,7 +67,7 @@ export function postHandlers() {
 
           const session = res.locals.session as Session;
 
-          if(session.personId !== params.id) {
+          if(session.personId !== params.personId) {
             forbidden(res, `Invalid person`);
             return;
           }
@@ -86,20 +86,20 @@ export function postHandlers() {
           });
 
           const Params = t.Record({
-            id: t.String,
+            personId: t.String,
           });
 
           const body = Body.check(req.body);
           const params = Params.check(req.params);
 
 
-          const isOwner = await gameService.checkOwnership(params.id, body.pgn);
+          const isOwner = await gameService.checkOwnership(params.personId, body.pgn);
 
           if(!isOwner) {
             throw new Error('NOT_GAME_OWNER')
           }
 
-          await gameService.create(params.id, body.pgn)
+          await gameService.create(params.personId, body.pgn)
 
           res.json({status: 'success'});
         }

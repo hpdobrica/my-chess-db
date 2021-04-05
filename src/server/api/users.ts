@@ -12,12 +12,16 @@ export function createRouter(): Router {
     Users.post('/', handler(userHandlers.postHandlers().createUser));
     Users.post('/login', handler(userHandlers.postHandlers().login));
 
+    // protected
     Users.use(requireAuthMiddleware)
+
+    Users.get('/:userId', handler(userHandlers.getHandlers().getUserById));
+
+    // admin
     Users.use(requireAdminMiddleware)
 
-    // protected
     Users.get('/', handler(userHandlers.getHandlers().getUsers));
-    Users.get('/:id', handler(userHandlers.getHandlers().getUserById));
+
     
 
     return Users;

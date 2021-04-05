@@ -34,11 +34,11 @@ export function getHandlers() {
           ): Promise<void> {
 
             const Params = t.Record({
-              id: t.String,
+              gameId: t.String,
             });
             const params = Params.check(req.params);
 
-            const game = await gameService.getById(params.id);
+            const game = await gameService.getById(params.gameId);
             
             res.json(game);
           }

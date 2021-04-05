@@ -28,12 +28,13 @@ export function getHandlers() {
             res: express.Response
           ): Promise<void> {
             const Params = t.Record({
-              id: t.String,
+              userId: t.String,
             });
             const params = Params.check(req.params);
 
-            const user = await userService.getById(params.id);
+            const user = await userService.getById(params.userId);
 
+            delete user.email;
             delete user.password;
 
             res.json(user);
