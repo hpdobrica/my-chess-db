@@ -12,6 +12,7 @@ import { OtbProfile } from '../../profiles/otb/entity';
 import { Session } from '../../sessions/types';
 import GameService from '../../games/service';
 import { User } from '../../users/entity';
+import UserService from '../../users/service';
 
 
 
@@ -19,6 +20,7 @@ import { User } from '../../users/entity';
 export function getHandlers() {
   const personService = PersonService(getConnection().getRepository(Person), getConnection().getRepository(LichessProfile), getConnection().getRepository(ChessComProfile), getConnection().getRepository(OtbProfile));
   const gameService = GameService(getConnection().getRepository(Game), getConnection().getRepository(Person), getConnection().getRepository(User),getConnection().getRepository(ChessComProfile),getConnection().getRepository(LichessProfile), getConnection().getRepository(OtbProfile));
+  const userService = UserService(getConnection().getRepository(User), getConnection().getRepository(Person));
 
   return {
       getAll: async function(
@@ -41,8 +43,17 @@ export function getHandlers() {
           const params = Params.check(req.params);
 
           const person = await personService.getById(params.personId)
+          const user = await userService.getByPersonId(params.personId)
 
-          res.send(person)
+          const response = {
+            ...person,
+            user: {
+              ...user
+            }
+          }
+
+
+          res.send(response)
         },
 
 

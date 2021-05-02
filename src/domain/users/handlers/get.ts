@@ -23,16 +23,16 @@ export function getHandlers() {
             });
             res.json(usersResponse);
           },
-          getUserById: async function(
+          getUserByUsername: async function(
             req: express.Request,
             res: express.Response
           ): Promise<void> {
             const Params = t.Record({
-              userId: t.String,
+              username: t.String,
             });
             const params = Params.check(req.params);
 
-            const user = await userService.getById(params.userId);
+            const user = await userService.getByUsername(params.username);
 
             delete user.email;
             delete user.password;

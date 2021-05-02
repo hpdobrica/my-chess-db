@@ -35,8 +35,27 @@ export default function UserService(userRepo: Repository<User>, personRepo: Repo
       return user;
     },
 
+    getByUsername: async (username: string):Promise<User> => {
+      const user = await userRepo.findOneOrFail({ username }, {relations: ['person']})
+
+      return user;
+    },
+
     getById: async (id: string):Promise<User> => {
       const user = await userRepo.findOneOrFail(id, {relations: ['person']})
+
+      return user;
+    },
+    getByPersonId: async (personId: string):Promise<User> => {
+    
+      const user = await userRepo.findOne({
+        where: [
+          {
+            person: personId,
+          }
+        ],
+        select: ['id', 'username']
+      });
 
       return user;
     },

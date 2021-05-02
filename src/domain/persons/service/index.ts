@@ -53,11 +53,12 @@ export default function PersonService(
             return;
           }
 
+          const oldUsername = person.chessComProfile.username;
           person.chessComProfile = null;
           await personRepo.save(person);
 
           await chessComProfileRepo.delete({
-            username: person.chessComProfile.username,
+            username: oldUsername,
           });
         }
 

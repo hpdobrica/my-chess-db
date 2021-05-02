@@ -15,7 +15,7 @@ export function createRouter(): Router {
     // protected
     Users.use(requireAuthMiddleware)
 
-    Users.get('/:userId', handler(userHandlers.getHandlers().getUserById));
+    Users.get('/:username', handler(userHandlers.getHandlers().getUserByUsername));
 
     // admin
     Users.use(requireAdminMiddleware)

@@ -10,7 +10,10 @@ export function CreateServer() {
     const app = express();
     app.disable("x-powered-by");
     app.use(express.json());
-    app.use(cors())
+    app.use(cors({
+        origin : "http://localhost:8080",
+        credentials: true,
+    }))
     app.use(useragent.express());
     
     app.use(cookieParser());

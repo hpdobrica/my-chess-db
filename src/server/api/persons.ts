@@ -3,7 +3,7 @@ import express, { Router } from 'express';
 import * as personHandler from '../../domain/persons/handlers';
 import { handler } from '../handler';
 import { requireAuthMiddleware } from '../middleware/auth';
-import { createRequireOwnerMiddleware, requireOwnerMiddleware } from '../middleware/owner';
+import { createRequireOwnerMiddleware } from '../middleware/owner';
 
 export function createRouter(): Router {
     const Persons = express.Router();
@@ -12,7 +12,7 @@ export function createRouter(): Router {
     Persons.use(requireAuthMiddleware)
 
     Persons.get('/', handler(personHandler.getHandlers().getAll));
-    Persons.get('/:id', handler(personHandler.getHandlers().getById));
+    Persons.get('/:personId', handler(personHandler.getHandlers().getById));
     
     
     Persons.get('/:personId/games', handler(personHandler.getHandlers().getPersonsGames))
